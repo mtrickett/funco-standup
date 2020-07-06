@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+      body {
+        width: 200px;
+        font-family: 'Roboto', sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        font-size: 20px;
+        text-align: center;
+        font-weight: 500;
+      }
+      li {
+        list-style: none;
+      }
+      .checkbox-list {
+        font-size: 16px;
+        margin: 5px 0 0 10px;
+        color: #333;
+        cursor: pointer;
+      }
+      .checkbox-label {
+        display: inline-block;
+        cursor: pointer;
+        width: 100%;
+        position: relative;
+      }
+      .participant {
+        opacity: 0;
+        position: absolute;
+        margin-top: 3px;
+      }
+      .checkbox {
+        border: 2px solid #333;
+        border-radius: 4px;
+        width: 12px;
+        height: 12px;
+        position: absolute;
+        margin-top: 5px;
+      }
+      .checkbox-text {
+        margin: 5px 0 0 23px;
+        display: inline-block;
+      }
+      .participant:checked ~ .checkbox {
+        background-color: #333;
+      }
+      .participant:checked ~ .checkbox:after {
+        font-family: 'Font Awesome';
+        content: "\2714";
+        color: #fff;
+        position: absolute;
+        margin-left: 2px;
+        font-size: 11px;
+      }
+      ul#participantChecklist {
+        padding: 0 10px;
+      }
+      #timerSetting {
+        padding: 0;
+        text-align: center;
+      }
+      .timer-option {
+        display: inline-block;
+      }
+      .timer-input {
+        display: none;
+      }
+      .timer-text {
+        margin: 5px 0 0 13px;
+        position: absolute;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .timer-button {
+        display: inline-block;
+        border: 2px solid #333;
+        border-radius: 20px;
+        height: 20px;
+        width: 20px;
+        margin: 0px 5px;
+        cursor: pointer;
+      }
+      .timer-input:checked ~ .timer-button {
+        background: #333;
+      }
+      .timer-input:checked ~ .timer-text {
+        color: #fff;
+      }
+      #startStandup {
+        color: #fff;
+        border-radius: 50px;
+        border: 2px solid #ce2333;
+        font-weight: 700;
+        padding: 8px 12px;
+        background: #ce2333;
+        transition: all .5s;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 5px;
+        font-size: 16px;
+      }
+      #startStandup:hover {
+        background: #a21c28;
+        border: 2px solid #a21c28;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <h1>Who's participating?</h1>
+      <ul id="participantChecklist"></ul>
+    </div>
+    <div class="section">
+      <h1>How many minutes?</h1>
+      <ul id="timerSetting">
+        <li class="timer-option">
+          <label class="timer-label" for="one">
+          <input class="timer-input" type="radio" id="one" name="time" value="60">
+          <span class="timer-text">1</span>
+          <span class="timer-button"></span>
+          </label>
+        </li>
+        <li class="timer-option">
+          <label class="timer-label" for="two">
+          <input class="timer-input" type="radio" id="two" name="time" value="120">
+          <span class="timer-text">2</span>
+          <span class="timer-button"></span>
+          </label>
+        </li>
+        <li class="timer-option">
+          <label class="timer-label" for="three">
+          <input class="timer-input" type="radio" id="three" name="time" value="180" checked>
+          <span class="timer-text">3</span>
+          <span class="timer-button"></span>
+          </label>
+        </li>
+        <li class="timer-option">
+          <label class="timer-label" for="four">
+          <input class="timer-input" type="radio" id="four" name="time" value="240">
+          <span class="timer-text">4</span>
+          <span class="timer-button"></span>
+          </label>
+        </li>
+        <li class="timer-option">
+          <label class="timer-label" for="five">
+          <input class="timer-input" type="radio" id="five" name="time" value="300">
+          <span class="timer-text">5</span>
+          <span class="timer-button"></span>
+          </label>
+        </li>
+      </ul>
+    </div>
+    <button id="startStandup">
+      Start Standup
+    </button>
+    <script src="popup.js"></script>
+  </body>
+</html>

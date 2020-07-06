@@ -1,0 +1,37 @@
+{
+  "name": "Fu'n'co Standup",
+  "version": "0.0.0.1",
+  "description": "Pick a random participant and start the timer all while in clubhouse.",
+  "permissions": [
+    "activeTab",
+    "declarativeContent",
+    "storage"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "page_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/standup16.png",
+      "32": "images/standup32.png",
+      "48": "images/standup48.png",
+      "128": "images/standup128.png"
+    }
+  },
+  "icons": {
+    "16": "images/standup16.png",
+    "32": "images/standup32.png",
+    "48": "images/standup48.png",
+    "128": "images/standup128.png"
+  },
+  "web_accessible_resources": [
+    "standup/app.html"
+  ],
+  "manifest_version": 2
+}
