@@ -10,68 +10,78 @@ fetch(chrome.runtime.getURL('standup/app.html'))
     document.body.firstChild.innerHTML = data;
     
     // identify dom elements
-    let wrapper = document.getElementById('wrapper');
-    let pickAtRandom = document.getElementById('thrillMe');
-    let pickedName = document.getElementById('picked');
-    let timerReset = document.getElementById('timerReset');
-    let endStandup = document.getElementById('endStandup');
+    const wrapper = document.getElementById('wrapper');
+    const pickRandomParticipant = document.getElementById('thrillMe');
+    const pickedName = document.getElementById('picked');
+    const timerReset = document.getElementById('timerReset');
+    const endStandup = document.getElementById('endStandup');
+    const timeDisplay = document.getElementById('timerCountdown');
+    const resetTime = document.getElementById('pickedReset');
 
-    // get participants list set in settings
+    const clearAllStyles = (allAvatars) => {
+      for (let i = 0; i < allAvatars.length; i++) {
+        allAvatars[i].style.cssText = "";
+      }
+    };
+
+    const setPickedParticipantStyles = (pickedParticipantAvatars) => {
+      debugger;
+      if (pickedParticipantAvatars.length > 0) {
+        const id = pickedParticipantAvatars[0].dataset.id;
+        
+        document.querySelectorAll('[data-id="' + id + '"]').forEach(node => {
+          node.style.cssText = "border: 2px solid #ce2333;";
+        });
+      }
+    };
+
+    const updateParticipantsList = (pickedParticipant, participantsList) => {
+      const index = participantsList.indexOf(pickedParticipant);
+
+      if (index > -1) {
+        participantsList.splice(index, 1);
+      }
+    };
+
+    const startParkingLot = () => {
+      wrapper.innerHTML = '<div class="parking">Post-standup parking lot in progress.</div>';
+    };
+
+    // get participants list from popup settings
     chrome.storage.sync.get('activeParticipants', function(data) {
-      let activeParticipantsList = data.activeParticipants;
-      
-      const clearStyles = (allAvatars) => {
-        for (let i = 0; i < allAvatars.length; i++) {
-          allAvatars[i].style.cssText = "";
-        }
-      };
+      let participantsList = data.activeParticipants;
 
-      const setActiveStyles = (participantAvatars) => {
-        if (participantAvatars.length > 0) {
-          for (let i = 0; i < participantAvatars.length; i++) {
-            const id = participantAvatars[i].dataset.id;
-            
-            document.querySelectorAll('[data-id="' + id + '"]').forEach(node => {
-              node.style.cssText = "border: 2px solid #ce2333;";
-            });
-          }
-        }
-      };
-
-      pickAtRandom.onclick = function() {
-        if (activeParticipantsList.length > 0) {
-          let pickedParticipant = activeParticipantsList[Math.floor(Math.random() * activeParticipantsList.length)];
+      pickRandomParticipant.onclick = function() {
+        if (participantsList.length > 0) {
+          // choose random participant and find relevant dom nodes
+          let pickedParticipant = participantsList[Math.floor(Math.random() * participantsList.length)];
           let allAvatars = document.querySelectorAll('[data-model="Profile"]');
-          let participantAvatars = document.querySelectorAll('[alt*="' + pickedParticipant + '"]');
+          let pickedParticipantAvatars = document.querySelectorAll('[alt*="' + pickedParticipant + '"]');
           pickedName.innerHTML = pickedParticipant;
           
-          clearStyles(allAvatars);
-
-          setActiveStyles(participantAvatars);
-  
-          const index = activeParticipantsList.indexOf(pickedParticipant);
-          if (index > -1) {
-            activeParticipantsList.splice(index, 1);
-          }
+          clearAllStyles(allAvatars);
+          setPickedParticipantStyles(pickedParticipantAvatars);
+          updateParticipantsList(pickedParticipant, participantsList);
         } else {
-          wrapper.innerHTML = '<div class="parking">Post-standup parking lot in progress.</div>';
+          startParkingLot();
         }
-      }      
+      }
     });
 
+    // get timer duration from popup settings
     chrome.storage.sync.get('timerAmount', function(data) {
-      let timeSetting = data.timerAmount;
-      let timeDisplay = document.getElementById('timerCountdown');
-      var existingIntervalId = 0;
+      const timeSetting = data.timerAmount;
+      let existingIntervalId = 0;
 
-      function startTimer(duration, display) {
-        timeDisplay.style.color = '#333';
+      const startTimer = (duration, display) => {
+        timeDisplay.style.cssText = 'color: #333;';
 
-        var start = Date.now(),
-            diff,
-            minutes,
-            seconds;
-        function timer() {
+        let start = Date.now();
+        let diff;
+        let minutes;
+        let seconds;
+
+        const timer = () => {
             diff = duration - (((Date.now() - start) / 1000) | 0);
             minutes = (diff / 60) | 0;
             seconds = (diff % 60) | 0;
@@ -84,7 +94,7 @@ fetch(chrome.runtime.getURL('standup/app.html'))
 
             if (minutes == 0 && seconds == 0) {
               clearInterval(existingIntervalId);
-              timeDisplay.style.color = '#ce2333';
+              timeDisplay.style.cssText = 'color: #ce2333; font-weight:600;';
             }
         }
 
@@ -92,7 +102,7 @@ fetch(chrome.runtime.getURL('standup/app.html'))
         existingIntervalId = setInterval(timer, 1000);
       }
 
-      document.getElementById('pickedReset').onclick = function(){
+      resetTime.onclick = function(){
         clearInterval(existingIntervalId);
         startTimer(timeSetting, timeDisplay);
       }
@@ -103,6 +113,7 @@ fetch(chrome.runtime.getURL('standup/app.html'))
       }
     });
 
+    // close the app by refreshing the page
     endStandup.onclick = function() {
       location.reload();
     }

@@ -79,6 +79,11 @@
   border: 2px solid #a21c28;
 }
 
+#pickedReset {
+  padding: 10px 15px;
+  margin: 0 -15px;
+}
+
 /* 
 .confetti {
   position: fixed;
