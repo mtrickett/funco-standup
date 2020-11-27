@@ -4,18 +4,39 @@ let clubhouseHeader = document.getElementById('app-root');
 fetch(chrome.runtime.getURL('standup/app.html'))
   .then(response => response.text())
   .then(data => {
+    // create standup app in dom
     document.body.insertBefore(standupConatiner, clubhouseHeader);
     document.body.firstChild.id = 'standupContainer';
     document.body.firstChild.innerHTML = data;
     
+    // identify dom elements
     let wrapper = document.getElementById('wrapper');
     let pickAtRandom = document.getElementById('thrillMe');
     let pickedName = document.getElementById('picked');
     let timerReset = document.getElementById('timerReset');
     let endStandup = document.getElementById('endStandup');
 
+    // get participants list set in settings
     chrome.storage.sync.get('activeParticipants', function(data) {
       let activeParticipantsList = data.activeParticipants;
+      
+      const clearStyles = (allAvatars) => {
+        for (let i = 0; i < allAvatars.length; i++) {
+          allAvatars[i].style.cssText = "";
+        }
+      };
+
+      const setActiveStyles = (participantAvatars) => {
+        if (participantAvatars.length > 0) {
+          for (let i = 0; i < participantAvatars.length; i++) {
+            const id = participantAvatars[i].dataset.id;
+            
+            document.querySelectorAll('[data-id="' + id + '"]').forEach(node => {
+              node.style.cssText = "border: 2px solid #ce2333;";
+            });
+          }
+        }
+      };
 
       pickAtRandom.onclick = function() {
         if (activeParticipantsList.length > 0) {
@@ -24,15 +45,9 @@ fetch(chrome.runtime.getURL('standup/app.html'))
           let participantAvatars = document.querySelectorAll('[alt*="' + pickedParticipant + '"]');
           pickedName.innerHTML = pickedParticipant;
           
-          for (let i = 0; i < allAvatars.length; i++) {
-            allAvatars[i].style.border = "";
-          }
+          clearStyles(allAvatars);
 
-          if (participantAvatars.length > 0) {
-            for (let i = 0; i < participantAvatars.length; i++) {
-              participantAvatars[i].style.border = "30px solid #13ae47";
-            }
-          }
+          setActiveStyles(participantAvatars);
   
           const index = activeParticipantsList.indexOf(pickedParticipant);
           if (index > -1) {
