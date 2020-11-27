@@ -9,15 +9,31 @@ fetch(chrome.runtime.getURL('standup/app.html'))
     document.body.firstChild.id = 'standupContainer';
     document.body.firstChild.innerHTML = data;
     
-    // identify dom elements
+    // dom elements
     const wrapper = document.getElementById('wrapper');
     const pickRandomParticipant = document.getElementById('thrillMe');
     const pickedName = document.getElementById('picked');
+    const timeDisplay = document.getElementById('timerCountdown');
     const timerReset = document.getElementById('timerReset');
     const endStandup = document.getElementById('endStandup');
-    const timeDisplay = document.getElementById('timerCountdown');
-    const resetTime = document.getElementById('pickedReset');
 
+    // timer variables
+    let existingIntervalId = 0;
+
+    // global variables
+    let participantsList;
+    let timeSetting;
+
+    // get values from settings
+    chrome.storage.sync.get('activeParticipants', function(data) {
+      participantsList = data.activeParticipants;
+    });
+  
+    chrome.storage.sync.get('timerAmount', function(data) {
+      timeSetting = data.timerAmount;
+    });
+
+    // update dom functions
     const clearAllStyles = (allAvatars) => {
       for (let i = 0; i < allAvatars.length; i++) {
         allAvatars[i].style.cssText = "";
@@ -25,7 +41,6 @@ fetch(chrome.runtime.getURL('standup/app.html'))
     };
 
     const setPickedParticipantStyles = (pickedParticipantAvatars) => {
-      debugger;
       if (pickedParticipantAvatars.length > 0) {
         const id = pickedParticipantAvatars[0].dataset.id;
         
@@ -47,71 +62,60 @@ fetch(chrome.runtime.getURL('standup/app.html'))
       wrapper.innerHTML = '<div class="parking">Post-standup parking lot in progress.</div>';
     };
 
-    // get participants list from popup settings
-    chrome.storage.sync.get('activeParticipants', function(data) {
-      let participantsList = data.activeParticipants;
+    const startTimer = () => {
+      let start = Date.now();
+      let diff;
+      let minutes;
+      let seconds;
 
-      pickRandomParticipant.onclick = function() {
-        if (participantsList.length > 0) {
-          // choose random participant and find relevant dom nodes
-          let pickedParticipant = participantsList[Math.floor(Math.random() * participantsList.length)];
-          let allAvatars = document.querySelectorAll('[data-model="Profile"]');
-          let pickedParticipantAvatars = document.querySelectorAll('[alt*="' + pickedParticipant + '"]');
-          pickedName.innerHTML = pickedParticipant;
-          
-          clearAllStyles(allAvatars);
-          setPickedParticipantStyles(pickedParticipantAvatars);
-          updateParticipantsList(pickedParticipant, participantsList);
-        } else {
-          startParkingLot();
-        }
-      }
-    });
+      timeDisplay.classList = '';
 
-    // get timer duration from popup settings
-    chrome.storage.sync.get('timerAmount', function(data) {
-      const timeSetting = data.timerAmount;
-      let existingIntervalId = 0;
+      const timer = () => {
+        diff = timeSetting - (((Date.now() - start) / 1000) | 0);
+        minutes = (diff / 60) | 0;
+        seconds = (diff % 60) | 0;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
 
-      const startTimer = (duration, display) => {
-        timeDisplay.style.cssText = 'color: #333;';
+        timeDisplay.textContent = minutes + ":" + seconds; 
 
-        let start = Date.now();
-        let diff;
-        let minutes;
-        let seconds;
-
-        const timer = () => {
-            diff = duration - (((Date.now() - start) / 1000) | 0);
-            minutes = (diff / 60) | 0;
-            seconds = (diff % 60) | 0;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.textContent = minutes + ":" + seconds; 
-
-            if (diff <= 0) {
-              start = Date.now() + 1000;
-            }
-
-            if (minutes == 0 && seconds == 0) {
-              clearInterval(existingIntervalId);
-              timeDisplay.style.cssText = 'color: #ce2333; font-weight:600;';
-            }
+        if (diff <= 0) {
+          start = Date.now() + 1000;
         }
 
-        timer();
-        existingIntervalId = setInterval(timer, 1000);
+        if (minutes == 0 && seconds == 0) {
+          clearInterval(existingIntervalId);
+          timeDisplay.classList = 'timer-up';
+        }
       }
 
-      resetTime.onclick = function(){
-        clearInterval(existingIntervalId);
-        startTimer(timeSetting, timeDisplay);
-      }
+      timer();
+      existingIntervalId = setInterval(timer, 1000);
+    }
 
-      timerReset.onclick = function(){
+    // pick participant and start timer
+    pickRandomParticipant.onclick = function() {
+      if (participantsList.length > 0) {
+        let pickedParticipant = participantsList[Math.floor(Math.random() * participantsList.length)];
+        let allAvatars = document.querySelectorAll('[data-model="Profile"]');
+        let pickedParticipantAvatars = document.querySelectorAll('[alt*="' + pickedParticipant + '"]');
+        
+        pickedName.innerHTML = pickedParticipant;
+
         clearInterval(existingIntervalId);
-        startTimer(timeSetting, timeDisplay);
+        startTimer();
+        clearAllStyles(allAvatars);
+        setPickedParticipantStyles(pickedParticipantAvatars);
+        updateParticipantsList(pickedParticipant, participantsList);
+      } else {
+        startParkingLot();
       }
-    });
+    }
+
+    // reset timer
+    timerReset.onclick = function(){
+      clearInterval(existingIntervalId);
+      startTimer();
+    }
 
     // close the app by refreshing the page
     endStandup.onclick = function() {

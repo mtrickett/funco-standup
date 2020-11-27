@@ -79,9 +79,17 @@
   border: 2px solid #a21c28;
 }
 
-#pickedReset {
-  padding: 10px 15px;
-  margin: 0 -15px;
+.timer-up {
+  font-weight: 600 !important;
+  animation: blinkingText 1.2s infinite;
+}
+
+@keyframes blinkingText {
+  0% { color: #ce2333; }
+  49% { color: #ce2333; }
+  60% { color: transparent; }
+  99% { color:transparent; }
+  100% { color: #ce2333; }
 }
 
 /* 
