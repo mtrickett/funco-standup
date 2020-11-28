@@ -1,6 +1,6 @@
 {
   "name": "Fu'n'co Standup",
-  "version": "0.0.0.1",
+  "version": "0.0.0.2",
   "description": "Pick a random participant and start the timer all while in clubhouse.",
   "permissions": [
     "activeTab",
