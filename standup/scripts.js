@@ -41,10 +41,12 @@ fetch(chrome.runtime.getURL('standup/app.html'))
     };
 
     const setPickedParticipantStyles = (pickedParticipantAvatars) => {
-      if (pickedParticipantAvatars.length > 0) {
-        const id = pickedParticipantAvatars[0].dataset.id;
-        
-        document.querySelectorAll('[data-id="' + id + '"]').forEach(node => {
+      const nodeWithId = Array.from(pickedParticipantAvatars).find(({ dataset }) => dataset.id );
+
+      if (nodeWithId) {
+        const id = nodeWithId.dataset.id;
+
+        document.querySelectorAll('div[data-id="' + id + '"]').forEach(node => {
           node.style.cssText = "border: 2px solid #ce2333;";
         });
       }
